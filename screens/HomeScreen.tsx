@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { ChecklistItem } from "../types";
-import { ScrollView, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import Checklist from "../components/Checklist";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
-const initialChecklist: ChecklistItem[] = [
+const initialChecklists: ChecklistItem[] = [
   {
     id: "1",
-    title: "Главный чек-лист",
+    title: "Чек-лист 1",
     completed: false,
     progressColor: "blue",
     children: [
@@ -18,23 +19,24 @@ const initialChecklist: ChecklistItem[] = [
         children: [
           {
             id: "1-1-1",
-            title: "Подзадача 1-1",
-            completed: false,
-            progressColor: "green",
-            children: [],
-          },
-          {
-            id: "1-1-2",
-            title: "Подзадача 1-2",
-            completed: false,
-            progressColor: "green",
+            title: "Глубокая подзадача",
+            completed: true,
+            progressColor: "red",
             children: [],
           },
         ],
       },
+    ],
+  },
+  {
+    id: "2",
+    title: "Чек-лист 2",
+    completed: false,
+    progressColor: "purple",
+    children: [
       {
         id: "2-1",
-        title: "Подзадача 2",
+        title: "Задача чеклиста 2",
         completed: false,
         progressColor: "red",
         children: [],
@@ -45,7 +47,30 @@ const initialChecklist: ChecklistItem[] = [
 
 export default function HomeScreen() {
   const [checklists, setChecklists] =
-    useState<ChecklistItem[]>(initialChecklist);
+    useState<ChecklistItem[]>(initialChecklists);
+  const [currentChecklist, setCurrentChecklist] =
+    useState<ChecklistItem | null>(null);
+  const [breadcrumb, setBreadcrumb] = useState<ChecklistItem[]>([]);
+
+  function openChecklist(checklist: ChecklistItem) {
+    if (breadcrumb.length === 0) {
+      setBreadcrumb([checklist]);
+    } else {
+      setBreadcrumb([...breadcrumb, checklist]);
+    }
+    setCurrentChecklist(checklist);
+  }
+
+  function goBack() {
+    if (breadcrumb.length > 1) {
+      const newBreadcrumb = breadcrumb.slice(0, -1);
+      setBreadcrumb(newBreadcrumb);
+      setCurrentChecklist(newBreadcrumb[breadcrumb.length - 1]);
+    } else {
+      setBreadcrumb([]);
+      setCurrentChecklist(null);
+    }
+  }
 
   function toggleComplete(id: string) {
     function updateStatus(items: ChecklistItem[]): ChecklistItem[] {
@@ -56,19 +81,65 @@ export default function HomeScreen() {
       }));
     }
 
-    setChecklists(updateStatus(checklists));
+    if (currentChecklist) {
+      setCurrentChecklist({
+        ...currentChecklist,
+        children: updateStatus(currentChecklist.children),
+      });
+    } else {
+      setChecklists(updateStatus(checklists));
+    }
   }
 
   return (
     <ScrollView>
-      <View>
-        {checklists.map((checklist) => (
-          <Checklist
-            key={checklist.id}
-            checklist={checklist}
-            toggleComplete={toggleComplete}
-          />
+      {/* navbar */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 10,
+          backgroundColor: "#ddd",
+        }}
+      >
+        {currentChecklist && (
+          <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
+            <Text style={{ fontSize: 16 }}>🔙 Назад</Text>
+          </TouchableOpacity>
+        )}
+        {breadcrumb.map((item, index) => (
+          <Text
+            key={item.id}
+            style={{
+              fontSize: 16,
+              fontWeight: index === breadcrumb.length - 1 ? "bold" : "normal",
+            }}
+          >
+            {index > 0 && " > "}
+            {item.title}
+          </Text>
         ))}
+      </View>
+
+      {/* checklists */}
+      <View style={{ padding: 10 }}>
+        {currentChecklist
+          ? currentChecklist.children.map((checklist) => (
+              <Checklist
+                key={checklist.id}
+                checklist={checklist}
+                toggleComplete={toggleComplete}
+                openChecklist={openChecklist}
+              />
+            ))
+          : checklists.map((checklist) => (
+              <Checklist
+                key={checklist.id}
+                checklist={checklist}
+                toggleComplete={toggleComplete}
+                openChecklist={openChecklist}
+              />
+            ))}
       </View>
     </ScrollView>
   );
