@@ -9,13 +9,19 @@ type Props = {
 };
 
 export default function Checklist({ checklist, toggleComplete }: Props) {
+  const hasChildren = checklist.children.length > 0;
+
   return (
     <View style={{ marginLeft: 20, borderLeftWidth: 2, paddingLeft: 10 }}>
-      <TouchableOpacity onPress={() => toggleComplete(checklist.id)}>
-        <Text>
-          {checklist.completed ? "✅" : "⬜"} {checklist.title}
-        </Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        {!hasChildren && (
+          <TouchableOpacity onPress={() => toggleComplete(checklist.id)}>
+            <Text>{checklist.completed ? "✅" : "⬜"}</Text>
+          </TouchableOpacity>
+        )}
+        <Text style={{ marginLeft: 8 }}>{checklist.title}</Text>
+      </View>
+
       <View
         style={{
           height: 5,
@@ -23,6 +29,7 @@ export default function Checklist({ checklist, toggleComplete }: Props) {
           width: `${calculateProgress(checklist)}%`,
         }}
       />
+
       {checklist.children.map((child) => (
         <Checklist
           key={child.id}

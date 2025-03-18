@@ -15,6 +15,28 @@ const initialChecklist: ChecklistItem[] = [
         title: "Подзадача 1",
         completed: false,
         progressColor: "green",
+        children: [
+          {
+            id: "1-1-1",
+            title: "Подзадача 1-1",
+            completed: false,
+            progressColor: "green",
+            children: [],
+          },
+          {
+            id: "1-1-2",
+            title: "Подзадача 1-2",
+            completed: false,
+            progressColor: "green",
+            children: [],
+          },
+        ],
+      },
+      {
+        id: "2-1",
+        title: "Подзадача 2",
+        completed: false,
+        progressColor: "red",
         children: [],
       },
     ],
