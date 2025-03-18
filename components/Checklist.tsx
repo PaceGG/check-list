@@ -25,7 +25,9 @@ export default function Checklist({ checklist, toggleComplete }: Props) {
       <View
         style={{
           height: 5,
-          backgroundColor: checklist.progressColor,
+          backgroundColor: hasChildren
+            ? checklist.progressColor
+            : "transparent",
           width: `${calculateProgress(checklist)}%`,
         }}
       />
