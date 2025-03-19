@@ -47,7 +47,7 @@ export default function Checklist({
               fontWeight: hasChildren ? "bold" : "normal",
             }}
           >
-            {hasChildren ? "📂 " : "📄 "}
+            {hasChildren ? "📂 " : ""}
             {checklist.title}
           </Text>
         </TouchableOpacity>
