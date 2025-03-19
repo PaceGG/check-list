@@ -4,12 +4,14 @@ import calculateProgress from "../utils/progress";
 import { ChecklistItem } from "../types";
 
 type Props = {
+  checklists: Record<string, ChecklistItem>;
   checklist: ChecklistItem;
   toggleComplete: (id: string) => void;
   openChecklist: (child: ChecklistItem) => void;
 };
 
 export default function Checklist({
+  checklists,
   checklist,
   toggleComplete,
   openChecklist,
@@ -54,7 +56,7 @@ export default function Checklist({
         style={{
           height: 5,
           backgroundColor: checklist.progressColor,
-          width: `${calculateProgress(checklist)}%`,
+          width: `${calculateProgress(checklist, checklists)}%`,
           marginTop: 5,
         }}
       />

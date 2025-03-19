@@ -4,50 +4,44 @@ import { ScrollView, Text, View } from "react-native";
 import Checklist from "../components/Checklist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-const initialChecklists: ChecklistItem[] = [
-  {
+const initialChecklists: Record<string, ChecklistItem> = {
+  "1": {
     id: "1",
+    parent: null,
+    children: ["1-1"],
     title: "Чек-лист 1",
     completed: false,
     progressColor: "blue",
-    children: [
-      {
-        id: "1-1",
-        title: "Подзадача 1",
-        completed: false,
-        progressColor: "green",
-        children: [
-          {
-            id: "1-1-1",
-            title: "Глубокая подзадача",
-            completed: true,
-            progressColor: "red",
-            children: [],
-          },
-        ],
-      },
-    ],
   },
-  {
+  "1-1": {
+    id: "1-1",
+    parent: "1",
+    children: ["1-1-1"],
+    title: "Подзадача 1",
+    completed: false,
+    progressColor: "green",
+  },
+  "1-1-1": {
+    id: "1-1-1",
+    parent: "1-1",
+    children: [],
+    title: "Глубокая подзадача",
+    completed: false,
+    progressColor: "red",
+  },
+  "2": {
     id: "2",
+    parent: null,
+    children: [],
     title: "Чек-лист 2",
     completed: false,
     progressColor: "purple",
-    children: [
-      {
-        id: "2-1",
-        title: "Задача чеклиста 2",
-        completed: false,
-        progressColor: "red",
-        children: [],
-      },
-    ],
   },
-];
+};
 
 export default function HomeScreen() {
   const [checklists, setChecklists] =
-    useState<ChecklistItem[]>(initialChecklists);
+    useState<Record<string, ChecklistItem>>(initialChecklists);
   const [currentChecklist, setCurrentChecklist] =
     useState<ChecklistItem | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<ChecklistItem[]>([]);
@@ -73,22 +67,21 @@ export default function HomeScreen() {
   }
 
   function toggleComplete(id: string) {
-    function updateStatus(items: ChecklistItem[]): ChecklistItem[] {
-      return items.map((item) => ({
-        ...item,
-        completed: item.id === id ? !item.completed : item.completed,
-        children: updateStatus(item.children),
-      }));
-    }
+    setChecklists((prevChecklists) => {
+      const updatedChecklists = { ...prevChecklists };
 
-    if (currentChecklist) {
-      setCurrentChecklist({
-        ...currentChecklist,
-        children: updateStatus(currentChecklist.children),
-      });
-    } else {
-      setChecklists(updateStatus(checklists));
-    }
+      function updateStatus(itemId: string) {
+        if (!updatedChecklists[itemId]) return;
+
+        updatedChecklists[itemId] = {
+          ...updatedChecklists[itemId],
+          completed: !updatedChecklists[itemId].completed,
+        };
+      }
+
+      updateStatus(id);
+      return updatedChecklists;
+    });
   }
 
   return (
@@ -123,23 +116,20 @@ export default function HomeScreen() {
 
       {/* checklists */}
       <View style={{ padding: 10 }}>
-        {currentChecklist
-          ? currentChecklist.children.map((checklist) => (
-              <Checklist
-                key={checklist.id}
-                checklist={checklist}
-                toggleComplete={toggleComplete}
-                openChecklist={openChecklist}
-              />
-            ))
-          : checklists.map((checklist) => (
-              <Checklist
-                key={checklist.id}
-                checklist={checklist}
-                toggleComplete={toggleComplete}
-                openChecklist={openChecklist}
-              />
-            ))}
+        {(currentChecklist
+          ? currentChecklist.children.map((childId) => checklists[childId])
+          : Object.values(checklists).filter((item) => item.parent === null)
+        ).map((checklist) =>
+          checklist ? (
+            <Checklist
+              key={checklist.id}
+              checklists={checklists}
+              checklist={checklist}
+              toggleComplete={toggleComplete}
+              openChecklist={openChecklist}
+            />
+          ) : null
+        )}
       </View>
     </ScrollView>
   );
