@@ -250,8 +250,16 @@ const initialChecklists: Record<string, ChecklistItem> = {
   "11-1-1-1": {
     id: "11-1-1-1",
     parent: "11-1-1",
-    children: ["11-1-1-1-1"],
+    children: ["11-1-1-1-1", "11-1-1-1-2"],
     title: "Глубокая подзадача 11-1",
+    completed: false,
+    progressColor: "yellow",
+  },
+  "11-1-1-1-2": {
+    id: "11-1-1-1-2",
+    parent: "11-1-1",
+    children: [],
+    title: "check task",
     completed: false,
     progressColor: "yellow",
   },
@@ -343,25 +351,33 @@ export default function HomeScreen() {
                 style={{
                   fontSize: 16,
                   fontWeight: index === path.length - 1 ? "bold" : "normal",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                {index > 0 && " > "}
-                {item.title}
+                <View>
+                  <Text>
+                    {index > 0 && " > "}
+                    {item.title}
+                  </Text>
+                </View>
+                {/* progress bar */}
+                <View>
+                  {currentId ? (
+                    <ProgressBar
+                      progress={calculateProgress(item, checklists)}
+                      color={item.progressColor}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </View>
               </Text>
             </TouchableOpacity>
           ));
         })()}
       </View>
-
-      {/* progress bar */}
-      {currentId ? (
-        <ProgressBar
-          progress={calculateProgress(checklists[currentId], checklists)}
-          color={checklists[currentId].progressColor}
-        />
-      ) : (
-        ""
-      )}
 
       {/* checklists */}
       <View style={{ padding: 10 }}>

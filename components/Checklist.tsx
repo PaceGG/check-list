@@ -62,13 +62,12 @@ export default function Checklist({
             {checklist.title}
           </Text>
         </View>
+        {/* Прогресс-бар */}
+        <ProgressBar
+          progress={calculateProgress(checklist, checklists)}
+          color={checklist.progressColor}
+        />
       </TouchableOpacity>
-
-      {/* Прогресс-бар */}
-      <ProgressBar
-        progress={calculateProgress(checklist, checklists)}
-        color={checklist.progressColor}
-      />
     </View>
   );
 }
