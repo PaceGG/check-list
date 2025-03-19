@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChecklistItem } from "../types";
-import { ScrollView, Text, View } from "react-native";
+import { BackHandler, ScrollView, Text, View } from "react-native";
 import Checklist from "../components/Checklist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ProgressBar from "../components/ProgressBar";
@@ -16,6 +16,23 @@ export default function HomeScreen() {
   function openChecklist(id: string) {
     setCurrentId(id);
   }
+
+  useEffect(() => {
+    const backAction = () => {
+      if (currentId) {
+        goBack();
+        return true; // предотвращает стандартное поведение (выход из приложения)
+      }
+      return false; // позволяет системе обрабатывать событие по умолчанию
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+
+    // Очистка при размонтировании компонента
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    };
+  }, [currentId]);
 
   function goBack() {
     if (currentId) {
