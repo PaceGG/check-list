@@ -3,6 +3,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import calculateProgress from "../utils/progress";
 import { ChecklistItem } from "../types";
 import ProgressBar from "./ProgressBar";
+import Checkbox from "./Checkbox";
 
 type Props = {
   checklists: Record<string, ChecklistItem>;
@@ -32,7 +33,8 @@ export default function Checklist({
   return (
     <View
       style={{
-        padding: 10,
+        paddingTop: 10,
+        paddingBottom: 10,
         borderWidth: 1,
         borderColor: "#ccc",
         borderRadius: 5,
@@ -49,24 +51,35 @@ export default function Checklist({
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {!hasChildren && (
             <Text style={{ marginRight: 10 }}>
-              {checklist.completed ? "✅" : "⬜"}
+              <Checkbox checked={checklist.completed} />
             </Text>
           )}
-          <Text
+          <View
             style={{
-              fontSize: 16,
-              fontWeight: hasChildren ? "bold" : "normal",
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "row",
             }}
           >
-            {hasChildren ? "📂 " : ""}
-            {checklist.title}
-          </Text>
+            <View>
+              {hasChildren && (
+                <ProgressBar
+                  progress={calculateProgress(checklist, checklists)}
+                  color={checklist.progressColor}
+                />
+              )}
+            </View>
+            <View>
+              <Text
+                style={{
+                  fontWeight: hasChildren ? "bold" : "normal",
+                }}
+              >
+                {checklist.title}
+              </Text>
+            </View>
+          </View>
         </View>
-        {/* Прогресс-бар */}
-        <ProgressBar
-          progress={calculateProgress(checklist, checklists)}
-          color={checklist.progressColor}
-        />
       </TouchableOpacity>
     </View>
   );

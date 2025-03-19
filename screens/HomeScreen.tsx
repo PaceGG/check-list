@@ -5,6 +5,7 @@ import Checklist from "../components/Checklist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ProgressBar from "../components/ProgressBar";
 import calculateProgress from "../utils/progress";
+import { Ionicons } from "@expo/vector-icons";
 
 const initialChecklists: Record<string, ChecklistItem> = {
   "1": {
@@ -327,9 +328,11 @@ export default function HomeScreen() {
         }}
       >
         {currentId && (
-          <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
-            <Text style={{ fontSize: 16 }}>🔙 Назад</Text>
-          </TouchableOpacity>
+          <View>
+            <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
+              <Ionicons name={"arrow-back-circle-outline"} size={30} />
+            </TouchableOpacity>
+          </View>
         )}
 
         {(() => {
@@ -343,38 +346,41 @@ export default function HomeScreen() {
           }
 
           return path.map((item, index) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => openChecklist(item.id)}
-            >
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: index === path.length - 1 ? "bold" : "normal",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <View>
-                  <Text>
-                    {index > 0 && " > "}
-                    {item.title}
-                  </Text>
+            <View key={item.id}>
+              <TouchableOpacity onPress={() => openChecklist(item.id)}>
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View>
+                    {currentId ? (
+                      <ProgressBar
+                        progress={calculateProgress(item, checklists)}
+                        color={item.progressColor}
+                      />
+                    ) : (
+                      ""
+                    )}
+                  </View>
+                  <View>
+                    <Text
+                      style={{
+                        fontWeight:
+                          index === path.length - 1 ? "bold" : "normal",
+                        lineHeight: 35,
+                      }}
+                    >
+                      {index > 0 && " > "}
+                      {item.title}
+                    </Text>
+                  </View>
                 </View>
-                {/* progress bar */}
-                <View>
-                  {currentId ? (
-                    <ProgressBar
-                      progress={calculateProgress(item, checklists)}
-                      color={item.progressColor}
-                    />
-                  ) : (
-                    ""
-                  )}
-                </View>
-              </Text>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           ));
         })()}
       </View>
