@@ -7,7 +7,7 @@ type Props = {
   checklists: Record<string, ChecklistItem>;
   checklist: ChecklistItem;
   toggleComplete: (id: string) => void;
-  openChecklist: (child: ChecklistItem) => void;
+  openChecklist: (id: string) => void;
 };
 
 export default function Checklist({
@@ -38,7 +38,7 @@ export default function Checklist({
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          onPress={() => hasChildren && openChecklist(checklist)}
+          onPress={() => hasChildren && openChecklist(checklist.id)}
         >
           <Text
             style={{

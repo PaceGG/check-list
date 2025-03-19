@@ -42,27 +42,15 @@ const initialChecklists: Record<string, ChecklistItem> = {
 export default function HomeScreen() {
   const [checklists, setChecklists] =
     useState<Record<string, ChecklistItem>>(initialChecklists);
-  const [currentChecklist, setCurrentChecklist] =
-    useState<ChecklistItem | null>(null);
-  const [breadcrumb, setBreadcrumb] = useState<ChecklistItem[]>([]);
+  const [currentId, setCurrentId] = useState<string | null>(null);
 
-  function openChecklist(checklist: ChecklistItem) {
-    if (breadcrumb.length === 0) {
-      setBreadcrumb([checklist]);
-    } else {
-      setBreadcrumb([...breadcrumb, checklist]);
-    }
-    setCurrentChecklist(checklist);
+  function openChecklist(id: string) {
+    setCurrentId(id);
   }
 
   function goBack() {
-    if (breadcrumb.length > 1) {
-      const newBreadcrumb = breadcrumb.slice(0, -1);
-      setBreadcrumb(newBreadcrumb);
-      setCurrentChecklist(newBreadcrumb[breadcrumb.length - 1]);
-    } else {
-      setBreadcrumb([]);
-      setCurrentChecklist(null);
+    if (currentId) {
+      setCurrentId(checklists[currentId].parent);
     }
   }
 
@@ -95,40 +83,55 @@ export default function HomeScreen() {
           backgroundColor: "#ddd",
         }}
       >
-        {currentChecklist && (
+        {currentId && (
           <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
             <Text style={{ fontSize: 16 }}>🔙 Назад</Text>
           </TouchableOpacity>
         )}
-        {breadcrumb.map((item, index) => (
-          <Text
-            key={item.id}
-            style={{
-              fontSize: 16,
-              fontWeight: index === breadcrumb.length - 1 ? "bold" : "normal",
-            }}
-          >
-            {index > 0 && " > "}
-            {item.title}
-          </Text>
-        ))}
+
+        {(() => {
+          // Восстанавливаем путь от текущего элемента до корня
+          let path: ChecklistItem[] = [];
+          let current = currentId ? checklists[currentId] : null;
+
+          while (current) {
+            path.unshift(current);
+            current = current.parent ? checklists[current.parent] : null;
+          }
+
+          return path.map((item, index) => (
+            <Text
+              key={item.id}
+              style={{
+                fontSize: 16,
+                fontWeight: index === path.length - 1 ? "bold" : "normal",
+              }}
+            >
+              {index > 0 && " > "}
+              {item.title}
+            </Text>
+          ));
+        })()}
       </View>
 
       {/* checklists */}
       <View style={{ padding: 10 }}>
-        {(currentChecklist
-          ? currentChecklist.children.map((childId) => checklists[childId])
+        {(currentId
+          ? checklists[currentId]?.children.map(
+              (childId) => checklists[childId]
+            )
           : Object.values(checklists).filter((item) => item.parent === null)
-        ).map((checklist) =>
-          checklist ? (
-            <Checklist
-              key={checklist.id}
-              checklists={checklists}
-              checklist={checklist}
-              toggleComplete={toggleComplete}
-              openChecklist={openChecklist}
-            />
-          ) : null
+        ).map(
+          (checklist) =>
+            checklist && (
+              <Checklist
+                key={checklist.id}
+                checklists={checklists}
+                checklist={checklist}
+                toggleComplete={toggleComplete}
+                openChecklist={openChecklist}
+              />
+            )
         )}
       </View>
     </ScrollView>
