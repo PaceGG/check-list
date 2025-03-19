@@ -2,6 +2,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 import calculateProgress from "../utils/progress";
 import { ChecklistItem } from "../types";
+import ProgressBar from "./ProgressBar";
 
 type Props = {
   checklists: Record<string, ChecklistItem>;
@@ -52,13 +53,10 @@ export default function Checklist({
         </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          height: 5,
-          backgroundColor: checklist.progressColor,
-          width: `${calculateProgress(checklist, checklists)}%`,
-          marginTop: 5,
-        }}
+      {/* progress bar */}
+      <ProgressBar
+        progress={calculateProgress(checklist, checklists)}
+        color={checklist.progressColor}
       />
     </View>
   );
