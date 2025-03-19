@@ -312,6 +312,7 @@ export default function HomeScreen() {
       <View
         style={{
           flexDirection: "row",
+          flexWrap: "wrap",
           alignItems: "center",
           padding: 10,
           backgroundColor: "#ddd",
