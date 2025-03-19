@@ -223,6 +223,54 @@ const initialChecklists: Record<string, ChecklistItem> = {
     completed: false,
     progressColor: "darkgray",
   },
+  "11": {
+    id: "11",
+    parent: null,
+    children: ["11-1"],
+    title: "Чек-лист 11",
+    completed: false,
+    progressColor: "blue",
+  },
+  "11-1": {
+    id: "11-1",
+    parent: "11",
+    children: ["11-1-1"],
+    title: "Подзадача 11",
+    completed: false,
+    progressColor: "green",
+  },
+  "11-1-1": {
+    id: "11-1-1",
+    parent: "11-1",
+    children: ["11-1-1-1"],
+    title: "Глубокая подзадача 11",
+    completed: false,
+    progressColor: "red",
+  },
+  "11-1-1-1": {
+    id: "11-1-1-1",
+    parent: "11-1-1",
+    children: ["11-1-1-1-1"],
+    title: "Глубокая подзадача 11-1",
+    completed: false,
+    progressColor: "yellow",
+  },
+  "11-1-1-1-1": {
+    id: "11-1-1-1-1",
+    parent: "11-1-1-1",
+    children: ["11-1-1-1-1-1"],
+    title: "Глубокая подзадача 11-1-1",
+    completed: false,
+    progressColor: "orange",
+  },
+  "11-1-1-1-1-1": {
+    id: "11-1-1-1-1-1",
+    parent: "11-1-1-1-1",
+    children: [],
+    title: "Глубокая подзадача 11-1-1-1",
+    completed: false,
+    progressColor: "purple",
+  },
 };
 
 export default function HomeScreen() {
@@ -286,16 +334,20 @@ export default function HomeScreen() {
           }
 
           return path.map((item, index) => (
-            <Text
+            <TouchableOpacity
               key={item.id}
-              style={{
-                fontSize: 16,
-                fontWeight: index === path.length - 1 ? "bold" : "normal",
-              }}
+              onPress={() => openChecklist(item.id)}
             >
-              {index > 0 && " > "}
-              {item.title}
-            </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: index === path.length - 1 ? "bold" : "normal",
+                }}
+              >
+                {index > 0 && " > "}
+                {item.title}
+              </Text>
+            </TouchableOpacity>
           ));
         })()}
       </View>
