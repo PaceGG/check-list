@@ -40,6 +40,10 @@ export default function HomeScreen() {
     }
   }
 
+  function goHome() {
+    setCurrentId(null); // Возвращаемся в начало, сбрасывая currentId
+  }
+
   function toggleComplete(id: string) {
     setChecklists((prevChecklists) => {
       const updatedChecklists = { ...prevChecklists };
@@ -60,14 +64,25 @@ export default function HomeScreen() {
 
   return (
     <ScrollView>
+      {/* panel */}
+      <View
+        style={{ backgroundColor: "#ddd", paddingTop: 5, paddingBottom: 5 }}
+      >
+        {/* Кнопка "Главная" */}
+        <View style={{ marginLeft: 10 }}>
+          <TouchableOpacity onPress={goHome} style={{ marginRight: 10 }}>
+            <Ionicons name={"home-outline"} size={30} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {/* navbar */}
       <View
         style={{
           flexDirection: "row",
           flexWrap: "wrap",
           alignItems: "center",
-          padding: 10,
-          backgroundColor: "#ddd",
+          backgroundColor: "#ccc",
         }}
       >
         {currentId && (
@@ -117,8 +132,8 @@ export default function HomeScreen() {
                         lineHeight: 35,
                       }}
                     >
-                      {index > 0 && " > "}
                       {item.title}
+                      {index != path.length && " > "}
                     </Text>
                   </View>
                 </View>
