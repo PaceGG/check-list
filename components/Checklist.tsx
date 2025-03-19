@@ -19,6 +19,16 @@ export default function Checklist({
 }: Props) {
   const hasChildren = checklist.children.length > 0;
 
+  const handlePress = () => {
+    if (hasChildren) {
+      // Если это папка, открываем чеклист
+      openChecklist(checklist.id);
+    } else {
+      // Если это не папка, ставим галочку
+      toggleComplete(checklist.id);
+    }
+  };
+
   return (
     <View
       style={{
@@ -29,18 +39,19 @@ export default function Checklist({
         marginBottom: 10,
       }}
     >
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        {!hasChildren && (
-          <TouchableOpacity
-            onPress={() => toggleComplete(checklist.id)}
-            style={{ marginRight: 10 }}
-          >
-            <Text>{checklist.completed ? "✅" : "⬜"}</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          onPress={() => hasChildren && openChecklist(checklist.id)}
-        >
+      <TouchableOpacity
+        onPress={handlePress}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          {!hasChildren && (
+            <Text style={{ marginRight: 10 }}>
+              {checklist.completed ? "✅" : "⬜"}
+            </Text>
+          )}
           <Text
             style={{
               fontSize: 16,
@@ -50,10 +61,10 @@ export default function Checklist({
             {hasChildren ? "📂 " : ""}
             {checklist.title}
           </Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
 
-      {/* progress bar */}
+      {/* Прогресс-бар */}
       <ProgressBar
         progress={calculateProgress(checklist, checklists)}
         color={checklist.progressColor}
