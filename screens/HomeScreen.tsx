@@ -40,8 +40,10 @@ export default function HomeScreen() {
       if (creatingChecklist) {
         cancelChecklistCreation();
         return true; // предотвращаем стандартное поведение кнопки "Назад"
+      } else {
+        goBack(); // вызываем goBack, если не создается чек-лист
+        return true; // предотвращаем стандартное поведение кнопки "Назад"
       }
-      return false; // позволяет системе обрабатывать событие по умолчанию
     };
 
     BackHandler.addEventListener("hardwareBackPress", backAction);
@@ -50,7 +52,7 @@ export default function HomeScreen() {
     return () => {
       BackHandler.removeEventListener("hardwareBackPress", backAction);
     };
-  }, [creatingChecklist]);
+  }, [creatingChecklist, currentId]);
 
   // Обработчик события потери фокуса поля ввода
   useEffect(() => {
