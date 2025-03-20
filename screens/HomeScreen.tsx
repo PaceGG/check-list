@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     top: 50,
     left: 0,
     right: 0,
-    backgroundColor: "#ccc",
+    backgroundColor: "white",
     zIndex: 9,
     flexDirection: "row",
     flexWrap: "wrap",
@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingTop: 15,
     marginTop: 30,
+    elevation: 4,
   },
   navItem: {
     flexDirection: "row",

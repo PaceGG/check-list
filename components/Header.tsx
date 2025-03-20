@@ -24,9 +24,10 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 10,
     paddingTop: 40,
-    zIndex: 10,
+    zIndex: 1000,
     flexDirection: "row",
     alignItems: "center",
+    elevation: 5,
   },
   homeButton: {
     backgroundColor: "#007aff",
