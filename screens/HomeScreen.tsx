@@ -8,13 +8,18 @@ import {
   StyleSheet,
   TextInput,
   Keyboard,
+  Modal,
+  TouchableOpacity,
+  FlatList,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Checklist from "../components/Checklist";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import ProgressBar from "../components/ProgressBar";
-import calculateProgress from "../utils/progress";
 import { Ionicons } from "@expo/vector-icons";
 import { initialChecklists } from "../data";
+import ProgressBar from "../components/ProgressBar";
+import calculateProgress from "../utils/progress";
+
+const colors = ["blue", "red", "green", "yellow", "purple", "orange"];
 
 export default function HomeScreen() {
   const [checklists, setChecklists] =
@@ -22,10 +27,12 @@ export default function HomeScreen() {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [creatingChecklist, setCreatingChecklist] = useState(false);
   const [newChecklistTitle, setNewChecklistTitle] = useState("");
+  const [selectedColor, setSelectedColor] = useState("blue");
   const containerRef = useRef<View>(null);
   const inputRef = useRef<TextInput>(null);
   const scrollRef = useRef<ScrollView>(null);
   const [navbarHeight, setNavbarHeight] = useState(0);
+  const [colorPickerVisible, setColorPickerVisible] = useState(false);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -33,6 +40,7 @@ export default function HomeScreen() {
         setNavbarHeight(height);
       });
     }
+    cancelChecklistCreation();
   }, [currentId]);
 
   useEffect(() => {
@@ -52,19 +60,7 @@ export default function HomeScreen() {
     return () => {
       BackHandler.removeEventListener("hardwareBackPress", backAction);
     };
-  }, [creatingChecklist, currentId]);
-
-  // Обработчик события потери фокуса поля ввода
-  useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      cancelChecklistCreation
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+  }, [creatingChecklist]);
 
   function openChecklist(id: string) {
     setCurrentId(id);
@@ -73,6 +69,8 @@ export default function HomeScreen() {
   function goBack() {
     if (currentId) {
       setCurrentId(checklists[currentId].parent);
+    } else {
+      setCurrentId(null); // если нет текущего чек-листа, сбрасываем
     }
   }
 
@@ -116,7 +114,7 @@ export default function HomeScreen() {
         parent: currentId,
         children: [],
         completed: false,
-        progressColor: "blue",
+        progressColor: selectedColor,
       },
     }));
 
@@ -131,6 +129,17 @@ export default function HomeScreen() {
     }
 
     setCreatingChecklist(false);
+  }
+
+  function selectColor(color: string) {
+    setSelectedColor(color);
+    setColorPickerVisible(false);
+  }
+
+  // Останавливаем сброс фокуса при открытии выбора цвета
+  function handleOpenColorPicker() {
+    Keyboard.dismiss(); // Отключаем клавиатуру, если она активна
+    setColorPickerVisible(true); // Показываем модальное окно с выбором цвета
   }
 
   return (
@@ -211,6 +220,10 @@ export default function HomeScreen() {
 
           {creatingChecklist && (
             <View style={styles.newChecklist}>
+              <TouchableOpacity
+                style={[styles.colorBox, { backgroundColor: selectedColor }]}
+                onPress={handleOpenColorPicker}
+              />
               <TextInput
                 ref={inputRef}
                 style={styles.input}
@@ -235,6 +248,33 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           )}
+
+          {/* Модальное окно выбора цвета */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={colorPickerVisible}
+            onRequestClose={() => setColorPickerVisible(false)}
+          >
+            <TouchableWithoutFeedback
+              onPress={() => setColorPickerVisible(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <FlatList
+                    data={colors}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        onPress={() => selectColor(item)}
+                        style={[styles.colorOption, { backgroundColor: item }]}
+                      />
+                    )}
+                    keyExtractor={(item) => item}
+                  />
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
         </View>
       </ScrollView>
     </View>
@@ -295,14 +335,63 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 10,
   },
+  colorBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 5,
+    marginRight: 10,
+  },
   input: {
     flex: 1,
     borderBottomWidth: 1,
-    borderColor: "#000",
-    padding: 5,
-    marginRight: 10,
+    borderColor: "#ccc",
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingVertical: 5,
   },
   cancelButton: {
     marginLeft: 10,
+  },
+
+  colorPicker: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    borderRadius: 15,
+    paddingTop: 10,
+    width: 70,
+    shadowColor: "#000", // Добавляем тень
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5, // для Android
+    transform: [{ scale: 0.95 }], // Немного уменьшаем окно при появлении
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    position: "absolute",
+    left: 15,
+    bottom: 70,
+    width: 40,
+    backgroundColor: "white",
+    borderRadius: 5,
+    paddingTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5, // для Android
+  },
+  colorOption: {
+    width: 30,
+    height: 30,
+    marginBottom: 5,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: "#fff",
+    marginHorizontal: 5,
   },
 });
