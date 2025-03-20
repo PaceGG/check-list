@@ -110,7 +110,31 @@ export default function HomeScreen() {
   const deleteChecklist = (id: string) => {
     setChecklists((prev) => {
       const newChecklists = { ...prev };
-      delete newChecklists[id];
+      const toDelete = new Set([id]);
+
+      // Рекурсивно находим всех потомков
+      const collectChildren = (itemId: string) => {
+        newChecklists[itemId]?.children.forEach((childId) => {
+          toDelete.add(childId);
+          collectChildren(childId);
+        });
+      };
+
+      collectChildren(id);
+
+      // Удаляем все найденные элементы
+      toDelete.forEach((itemId) => {
+        delete newChecklists[itemId];
+      });
+
+      // Убираем удалённый элемент из `children` родителя
+      const parent = prev[id]?.parent;
+      if (parent && newChecklists[parent]) {
+        newChecklists[parent].children = newChecklists[parent].children.filter(
+          (childId) => childId !== id
+        );
+      }
+
       return newChecklists;
     });
   };
