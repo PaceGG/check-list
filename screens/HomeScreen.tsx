@@ -40,7 +40,6 @@ export default function HomeScreen() {
     if (containerRef.current) {
       containerRef.current.measure((x, y, width, height) => {
         setNavbarHeight(height);
-        console.log(height);
       });
     }
   }, [currentId]);
