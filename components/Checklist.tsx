@@ -4,7 +4,8 @@ import calculateProgress from "../utils/progress";
 import { ChecklistItem } from "../types";
 import ProgressBar from "./ProgressBar";
 import Checkbox from "./Checkbox";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, MaterialIcons } from "@expo/vector-icons";
+
 import ChecklistEditor from "./ChecklistEditor";
 
 type Props = {
@@ -94,25 +95,27 @@ export default function Checklist({
           </TouchableOpacity>
         </TouchableOpacity>
       )}
-
       {/* Меню настроек */}
       {showMenu && (
         <View style={styles.menu}>
-          <TouchableOpacity onPress={handleEdit} style={styles.menuItem}>
-            <Text>Редактировать</Text>
+          <TouchableOpacity
+            onPress={handleEdit}
+            style={[styles.menuItem, { backgroundColor: "#5DB6E5" }]}
+          >
+            <MaterialIcons name="edit" size={35} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => deleteChecklist(checklist.id)}
-            style={styles.menuItem}
+            style={[styles.menuItem, { backgroundColor: "#E03232" }]}
           >
-            <Text>Удалить</Text>
+            <MaterialIcons name="delete" size={35} color="white" />
           </TouchableOpacity>
           {!hasChildren && (
             <TouchableOpacity
               onPress={() => createFolder(checklist.id)}
-              style={styles.menuItem}
+              style={[styles.menuItem, { backgroundColor: "#F0C850" }]}
             >
-              <Text>Папка</Text>
+              <MaterialIcons name="create-new-folder" size={35} color="white" />
             </TouchableOpacity>
           )}
         </View>
@@ -156,18 +159,19 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   menu: {
+    flexDirection: "row",
     position: "absolute",
-    right: 45,
-    top: 0,
+    right: 55,
+    top: -3,
     width: 180,
     zIndex: 300,
+    gap: 10,
   },
   menuItem: {
-    borderWidth: 1,
-    borderColor: "#333",
     borderRadius: 5,
-    padding: 15,
-    backgroundColor: "white",
-    marginVertical: 2,
+    height: 50,
+    width: 50,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
