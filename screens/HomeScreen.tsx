@@ -19,6 +19,7 @@ import { initialChecklists } from "../data";
 import ProgressBar from "../components/ProgressBar";
 import calculateProgress from "../utils/progress";
 import ChecklistCreator from "../components/ChecklistCreator";
+import Header from "../components/Header";
 
 export default function HomeScreen() {
   const [checklists, setChecklists] =
@@ -148,15 +149,11 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <Header goHome={goHome} />
+
       <TouchableOpacity onPress={createChecklist} style={styles.createButton}>
         <Ionicons name="add-circle-outline" size={70} color={"white"} />
       </TouchableOpacity>
-      {/* Панель */}
-      <View style={styles.panel}>
-        <TouchableOpacity onPress={goHome} style={styles.homeButton}>
-          <Ionicons name="home-outline" size={30} color={"white"} />
-        </TouchableOpacity>
-      </View>
 
       {/* Навбар */}
       <View ref={containerRef} style={styles.navbar}>
@@ -202,7 +199,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Чеклисты */}
-      <ScrollView ref={scrollRef} style={{ marginTop: navbarHeight + 45 }}>
+      <ScrollView ref={scrollRef} style={{ marginTop: navbarHeight + 45 + 35 }}>
         <View style={{ padding: 10 }}>
           {(currentId
             ? checklists[currentId]?.children.map(
@@ -265,23 +262,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  panel: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#ddd",
-    padding: 10,
-    zIndex: 10,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  homeButton: {
-    backgroundColor: "#007aff",
-    padding: 5,
-    borderRadius: 5,
-    marginRight: 10,
-  },
   createButton: {
     position: "absolute",
     right: 15,
@@ -304,6 +284,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 5,
     paddingTop: 15,
+    marginTop: 30,
   },
   navItem: {
     flexDirection: "row",
