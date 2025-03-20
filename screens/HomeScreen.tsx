@@ -18,16 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { initialChecklists } from "../data";
 import ProgressBar from "../components/ProgressBar";
 import calculateProgress from "../utils/progress";
-
-const colors = [
-  "#5DB6E5", // светло-голубой
-  "#E03232", // ярко-красный
-  "#F0C850", // желтый
-  "#FF8555", // оранжевый
-  "#72CC72", // зеленый
-  "#8466E2", // фиолетовый
-  "#CB3694", // розовый
-];
+import ChecklistCreator from "../components/ChecklistCreator";
 
 export default function HomeScreen() {
   const [checklists, setChecklists] =
@@ -35,12 +26,10 @@ export default function HomeScreen() {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [creatingChecklist, setCreatingChecklist] = useState(false);
   const [newChecklistTitle, setNewChecklistTitle] = useState("");
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
   const containerRef = useRef<View>(null);
   const inputRef = useRef<TextInput>(null);
   const scrollRef = useRef<ScrollView>(null);
   const [navbarHeight, setNavbarHeight] = useState(0);
-  const [colorPickerVisible, setColorPickerVisible] = useState(false);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -111,44 +100,20 @@ export default function HomeScreen() {
     setNewChecklistTitle("");
   }
 
-  function confirmChecklist() {
-    if (!newChecklistTitle.trim()) return;
-    const newId = Date.now().toString();
-    setChecklists((prevChecklists) => ({
-      ...prevChecklists,
-      [newId]: {
-        id: newId,
-        title: newChecklistTitle,
-        parent: currentId,
-        children: [],
-        completed: false,
-        progressColor: selectedColor,
-      },
+  const updateChecklist = (id: string, newTitle: string, newColor: string) => {
+    setChecklists((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], title: newTitle, progressColor: newColor },
     }));
+  };
 
-    if (currentId) {
-      setChecklists((prevChecklists) => ({
-        ...prevChecklists,
-        [currentId]: {
-          ...prevChecklists[currentId],
-          children: [...prevChecklists[currentId].children, newId],
-        },
-      }));
-    }
-
-    setCreatingChecklist(false);
-  }
-
-  function selectColor(color: string) {
-    setSelectedColor(color);
-    setColorPickerVisible(false);
-  }
-
-  // Останавливаем сброс фокуса при открытии выбора цвета
-  function handleOpenColorPicker() {
-    Keyboard.dismiss(); // Отключаем клавиатуру, если она активна
-    setColorPickerVisible(true); // Показываем модальное окно с выбором цвета
-  }
+  const deleteChecklist = (id: string) => {
+    setChecklists((prev) => {
+      const newChecklists = { ...prev };
+      delete newChecklists[id];
+      return newChecklists;
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -222,67 +187,42 @@ export default function HomeScreen() {
                   checklist={checklist}
                   toggleComplete={toggleComplete}
                   openChecklist={openChecklist}
+                  updateChecklist={updateChecklist}
+                  deleteChecklist={deleteChecklist}
                 />
               )
           )}
 
           {creatingChecklist && (
-            <View style={styles.newChecklist}>
-              <TouchableOpacity
-                style={[styles.colorBox, { backgroundColor: selectedColor }]}
-                onPress={handleOpenColorPicker}
-              />
-              <TextInput
-                ref={inputRef}
-                style={styles.input}
-                value={newChecklistTitle}
-                onChangeText={setNewChecklistTitle}
-                placeholder="Введите название"
-                autoFocus
-                onSubmitEditing={confirmChecklist}
-              />
-              <TouchableOpacity onPress={confirmChecklist}>
-                <Ionicons
-                  name="checkmark-circle-outline"
-                  size={30}
-                  color="green"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={cancelChecklistCreation}
-                style={styles.cancelButton}
-              >
-                <Ionicons name="close-circle-outline" size={30} color="red" />
-              </TouchableOpacity>
-            </View>
-          )}
+            <ChecklistCreator
+              onCreate={(title, color) => {
+                const newId = Date.now().toString();
+                setChecklists((prev) => ({
+                  ...prev,
+                  [newId]: {
+                    id: newId,
+                    title,
+                    parent: currentId,
+                    children: [],
+                    completed: false,
+                    progressColor: color,
+                  },
+                }));
 
-          {/* Модальное окно выбора цвета */}
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={colorPickerVisible}
-            onRequestClose={() => setColorPickerVisible(false)}
-          >
-            <TouchableWithoutFeedback
-              onPress={() => setColorPickerVisible(false)}
-            >
-              <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
-                  <FlatList
-                    data={colors}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        onPress={() => selectColor(item)}
-                        style={[styles.colorOption, { backgroundColor: item }]}
-                      />
-                    )}
-                    keyExtractor={(item) => item}
-                  />
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </Modal>
+                if (currentId) {
+                  setChecklists((prev) => ({
+                    ...prev,
+                    [currentId]: {
+                      ...prev[currentId],
+                      children: [...prev[currentId].children, newId],
+                    },
+                  }));
+                }
+                setCreatingChecklist(false);
+              }}
+              onCancel={() => setCreatingChecklist(false)}
+            />
+          )}
         </View>
       </ScrollView>
     </View>
