@@ -66,8 +66,8 @@ export default function HomeScreen() {
     <View style={styles.container}>
       {/* panel */}
       <View style={styles.panel}>
-        <TouchableOpacity onPress={goHome}>
-          <Ionicons name="home-outline" size={30} />
+        <TouchableOpacity onPress={goHome} style={styles.homeButton}>
+          <Ionicons name="home-outline" size={30} color={"white"} />
         </TouchableOpacity>
       </View>
 
@@ -154,6 +154,11 @@ const styles = StyleSheet.create({
     zIndex: 10,
     flexDirection: "row",
     alignItems: "center",
+  },
+  homeButton: {
+    backgroundColor: "#007aff",
+    padding: 5,
+    borderRadius: 5,
   },
   navbar: {
     position: "absolute",
