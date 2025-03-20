@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { ChecklistItem } from "../types";
-import { BackHandler, ScrollView, Text, View, StyleSheet } from "react-native";
+import {
+  BackHandler,
+  ScrollView,
+  Text,
+  View,
+  StyleSheet,
+  TextInput,
+} from "react-native";
 import Checklist from "../components/Checklist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ProgressBar from "../components/ProgressBar";
@@ -12,29 +19,12 @@ export default function HomeScreen() {
   const [checklists, setChecklists] =
     useState<Record<string, ChecklistItem>>(initialChecklists);
   const [currentId, setCurrentId] = useState<string | null>(null);
+  const [creatingChecklist, setCreatingChecklist] = useState(false);
+  const [newChecklistTitle, setNewChecklistTitle] = useState("");
   const containerRef = useRef<View>(null);
+  const inputRef = useRef<TextInput>(null);
+  const scrollRef = useRef<ScrollView>(null);
   const [navbarHeight, setNavbarHeight] = useState(0);
-
-  function openChecklist(id: string) {
-    setCurrentId(id);
-  }
-
-  useEffect(() => {
-    const backAction = () => {
-      if (currentId) {
-        goBack();
-        return true; // предотвращает стандартное поведение (выход из приложения)
-      }
-      return false; // позволяет системе обрабатывать событие по умолчанию
-    };
-
-    BackHandler.addEventListener("hardwareBackPress", backAction);
-
-    // Очистка при размонтировании компонента
-    return () => {
-      BackHandler.removeEventListener("hardwareBackPress", backAction);
-    };
-  }, [currentId]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -44,6 +34,10 @@ export default function HomeScreen() {
     }
   }, [currentId]);
 
+  function openChecklist(id: string) {
+    setCurrentId(id);
+  }
+
   function goBack() {
     if (currentId) {
       setCurrentId(checklists[currentId].parent);
@@ -51,37 +45,70 @@ export default function HomeScreen() {
   }
 
   function goHome() {
-    setCurrentId(null); // Возвращаемся в начало, сбрасывая currentId
+    setCurrentId(null);
   }
 
   function toggleComplete(id: string) {
     setChecklists((prevChecklists) => {
       const updatedChecklists = { ...prevChecklists };
-
-      function updateStatus(itemId: string) {
-        if (!updatedChecklists[itemId]) return;
-
-        updatedChecklists[itemId] = {
-          ...updatedChecklists[itemId],
-          completed: !updatedChecklists[itemId].completed,
-        };
-      }
-
-      updateStatus(id);
+      updatedChecklists[id] = {
+        ...updatedChecklists[id],
+        completed: !updatedChecklists[id].completed,
+      };
       return updatedChecklists;
     });
   }
 
+  function createChecklist() {
+    setCreatingChecklist(true);
+    setNewChecklistTitle("");
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+      inputRef.current?.focus();
+    }, 100);
+  }
+
+  function confirmChecklist() {
+    if (!newChecklistTitle.trim()) return;
+    const newId = Date.now().toString();
+    setChecklists((prevChecklists) => ({
+      ...prevChecklists,
+      [newId]: {
+        id: newId,
+        title: newChecklistTitle,
+        parent: currentId,
+        children: [],
+        completed: false,
+        progressColor: "blue",
+      },
+    }));
+
+    if (currentId) {
+      setChecklists((prevChecklists) => ({
+        ...prevChecklists,
+        [currentId]: {
+          ...prevChecklists[currentId],
+          children: [...prevChecklists[currentId].children, newId],
+        },
+      }));
+    }
+
+    setCreatingChecklist(false);
+  }
+
   return (
     <View style={styles.container}>
-      {/* panel */}
+      {/* Панель */}
       <View style={styles.panel}>
         <TouchableOpacity onPress={goHome} style={styles.homeButton}>
           <Ionicons name="home-outline" size={30} color={"white"} />
         </TouchableOpacity>
+        <TouchableOpacity onPress={createChecklist} style={styles.createButton}>
+          <Ionicons name="add-circle-outline" size={30} color={"white"} />
+        </TouchableOpacity>
       </View>
 
-      {/* navbar */}
+      {/* Навбар */}
       <View ref={containerRef} style={styles.navbar}>
         {currentId && (
           <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
@@ -124,8 +151,8 @@ export default function HomeScreen() {
         })()}
       </View>
 
-      {/* checklists */}
-      <ScrollView style={{ marginTop: navbarHeight + 45 }}>
+      {/* Чеклисты */}
+      <ScrollView ref={scrollRef} style={{ marginTop: navbarHeight + 45 }}>
         <View style={{ padding: 10 }}>
           {(currentId
             ? checklists[currentId]?.children.map(
@@ -143,6 +170,27 @@ export default function HomeScreen() {
                   openChecklist={openChecklist}
                 />
               )
+          )}
+
+          {creatingChecklist && (
+            <View style={styles.newChecklist}>
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                value={newChecklistTitle}
+                onChangeText={setNewChecklistTitle}
+                placeholder="Введите название"
+                autoFocus
+                onSubmitEditing={confirmChecklist}
+              />
+              <TouchableOpacity onPress={confirmChecklist}>
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={30}
+                  color="green"
+                />
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       </ScrollView>
@@ -169,6 +217,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#007aff",
     padding: 5,
     borderRadius: 5,
+    marginRight: 10,
+  },
+  createButton: {
+    backgroundColor: "#28a745",
+    padding: 5,
+    borderRadius: 5,
   },
   navbar: {
     position: "absolute",
@@ -188,5 +242,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+  },
+  newChecklist: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  input: {
+    flex: 1,
+    borderBottomWidth: 1,
+    borderColor: "#000",
+    padding: 5,
+    marginRight: 10,
   },
 });
