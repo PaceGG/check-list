@@ -14,6 +14,7 @@ type Props = {
   openChecklist: (id: string) => void;
   updateChecklist: (id: string, title: string, color: string) => void;
   deleteChecklist: (id: string) => void;
+  createFolder: (id: string) => void;
 };
 
 export default function Checklist({
@@ -23,6 +24,7 @@ export default function Checklist({
   openChecklist,
   updateChecklist,
   deleteChecklist,
+  createFolder,
 }: Props) {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -105,6 +107,14 @@ export default function Checklist({
           >
             <Text>Удалить</Text>
           </TouchableOpacity>
+          {!hasChildren && (
+            <TouchableOpacity
+              onPress={() => createFolder(checklist.id)}
+              style={styles.menuItem}
+            >
+              <Text>Папка</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>

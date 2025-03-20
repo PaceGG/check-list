@@ -115,6 +115,13 @@ export default function HomeScreen() {
     });
   };
 
+  const createFolder = (id: string) => {
+    if (checklists[id].children.length === 0) {
+      openChecklist(id);
+      createChecklist();
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Панель */}
@@ -189,6 +196,7 @@ export default function HomeScreen() {
                   openChecklist={openChecklist}
                   updateChecklist={updateChecklist}
                   deleteChecklist={deleteChecklist}
+                  createFolder={createFolder}
                 />
               )
           )}
