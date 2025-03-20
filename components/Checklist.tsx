@@ -163,9 +163,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 55,
     top: -3,
-    width: 180,
     zIndex: 300,
     gap: 10,
+    backgroundColor: "white",
+    borderRadius: 5,
   },
   menuItem: {
     borderRadius: 5,
