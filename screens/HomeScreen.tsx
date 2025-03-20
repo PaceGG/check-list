@@ -7,6 +7,7 @@ import {
   View,
   StyleSheet,
   TextInput,
+  Keyboard,
 } from "react-native";
 import Checklist from "../components/Checklist";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -33,6 +34,35 @@ export default function HomeScreen() {
       });
     }
   }, [currentId]);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (creatingChecklist) {
+        cancelChecklistCreation();
+        return true; // предотвращаем стандартное поведение кнопки "Назад"
+      }
+      return false; // позволяет системе обрабатывать событие по умолчанию
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+
+    // Очистка при размонтировании компонента
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    };
+  }, [creatingChecklist]);
+
+  // Обработчик события потери фокуса поля ввода
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      cancelChecklistCreation
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   function openChecklist(id: string) {
     setCurrentId(id);
@@ -66,6 +96,11 @@ export default function HomeScreen() {
       scrollRef.current?.scrollToEnd({ animated: true });
       inputRef.current?.focus();
     }, 100);
+  }
+
+  function cancelChecklistCreation() {
+    setCreatingChecklist(false);
+    setNewChecklistTitle("");
   }
 
   function confirmChecklist() {
@@ -190,6 +225,12 @@ export default function HomeScreen() {
                   color="green"
                 />
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={cancelChecklistCreation}
+                style={styles.cancelButton}
+              >
+                <Ionicons name="close-circle-outline" size={30} color="red" />
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -258,5 +299,8 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     padding: 5,
     marginRight: 10,
+  },
+  cancelButton: {
+    marginLeft: 10,
   },
 });
