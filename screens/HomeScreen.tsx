@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChecklistItem } from "../types";
-import { BackHandler, ScrollView, Text, View } from "react-native";
+import { BackHandler, ScrollView, Text, View, StyleSheet } from "react-native";
 import Checklist from "../components/Checklist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ProgressBar from "../components/ProgressBar";
@@ -63,38 +63,23 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScrollView>
+    <View style={styles.container}>
       {/* panel */}
-      <View
-        style={{ backgroundColor: "#ddd", paddingTop: 5, paddingBottom: 5 }}
-      >
-        {/* Кнопка "Главная" */}
-        <View style={{ marginLeft: 10 }}>
-          <TouchableOpacity onPress={goHome} style={{ marginRight: 10 }}>
-            <Ionicons name={"home-outline"} size={30} />
-          </TouchableOpacity>
-        </View>
+      <View style={styles.panel}>
+        <TouchableOpacity onPress={goHome}>
+          <Ionicons name="home-outline" size={30} />
+        </TouchableOpacity>
       </View>
 
       {/* navbar */}
-      <View
-        style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          alignItems: "center",
-          backgroundColor: "#ccc",
-        }}
-      >
+      <View style={styles.navbar}>
         {currentId && (
-          <View>
-            <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
-              <Ionicons name={"arrow-back-circle-outline"} size={30} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
+            <Ionicons name="arrow-back-circle-outline" size={30} />
+          </TouchableOpacity>
         )}
 
         {(() => {
-          // Восстанавливаем путь от текущего элемента до корня
           let path: ChecklistItem[] = [];
           let current = currentId ? checklists[currentId] : null;
 
@@ -106,36 +91,22 @@ export default function HomeScreen() {
           return path.map((item, index) => (
             <View key={item.id}>
               <TouchableOpacity onPress={() => openChecklist(item.id)}>
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <View>
-                    {currentId ? (
-                      <ProgressBar
-                        progress={calculateProgress(item, checklists)}
-                        color={item.progressColor}
-                      />
-                    ) : (
-                      ""
-                    )}
-                  </View>
-                  <View>
-                    <Text
-                      style={{
-                        fontWeight:
-                          index === path.length - 1 ? "bold" : "normal",
-                        lineHeight: 35,
-                      }}
-                    >
-                      {item.title}
-                      {index != path.length && " > "}
-                    </Text>
-                  </View>
+                <View style={styles.navItem}>
+                  {currentId ? (
+                    <ProgressBar
+                      progress={calculateProgress(item, checklists)}
+                      color={item.progressColor}
+                    />
+                  ) : null}
+                  <Text
+                    style={{
+                      fontWeight: index === path.length - 1 ? "bold" : "normal",
+                      lineHeight: 35,
+                    }}
+                  >
+                    {item.title}
+                    {index != path.length - 1 && " > "}
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -144,25 +115,65 @@ export default function HomeScreen() {
       </View>
 
       {/* checklists */}
-      <View style={{ padding: 10 }}>
-        {(currentId
-          ? checklists[currentId]?.children.map(
-              (childId) => checklists[childId]
-            )
-          : Object.values(checklists).filter((item) => item.parent === null)
-        ).map(
-          (checklist) =>
-            checklist && (
-              <Checklist
-                key={checklist.id}
-                checklists={checklists}
-                checklist={checklist}
-                toggleComplete={toggleComplete}
-                openChecklist={openChecklist}
-              />
-            )
-        )}
-      </View>
-    </ScrollView>
+      <ScrollView style={styles.content}>
+        <View style={{ padding: 10 }}>
+          {(currentId
+            ? checklists[currentId]?.children.map(
+                (childId) => checklists[childId]
+              )
+            : Object.values(checklists).filter((item) => item.parent === null)
+          ).map(
+            (checklist) =>
+              checklist && (
+                <Checklist
+                  key={checklist.id}
+                  checklists={checklists}
+                  checklist={checklist}
+                  toggleComplete={toggleComplete}
+                  openChecklist={openChecklist}
+                />
+              )
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  panel: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#ddd",
+    padding: 10,
+    zIndex: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  navbar: {
+    position: "absolute",
+    minHeight: 55,
+    top: 50,
+    left: 0,
+    right: 0,
+    backgroundColor: "#ccc",
+    zIndex: 9,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    padding: 10,
+  },
+  navItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  content: {
+    marginTop: 100, // Учитываем высоту панели и навбара
+  },
+});

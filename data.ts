@@ -273,4 +273,28 @@ export const initialChecklists: Record<string, ChecklistItem> = {
     completed: false,
     progressColor: "purple",
   },
+  "12": {
+    id: "12",
+    parent: null,
+    children: [],
+    title: "Чек-лист 12",
+    completed: false,
+    progressColor: "darkgreen",
+  },
+  "13": {
+    id: "13",
+    parent: null,
+    children: [],
+    title: "Чек-лист 13",
+    completed: false,
+    progressColor: "darkgreen",
+  },
+  "14": {
+    id: "14",
+    parent: null,
+    children: [],
+    title: "Чек-лист 14",
+    completed: false,
+    progressColor: "darkgreen",
+  },
 };
