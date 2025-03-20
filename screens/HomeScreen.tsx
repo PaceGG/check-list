@@ -19,7 +19,15 @@ import { initialChecklists } from "../data";
 import ProgressBar from "../components/ProgressBar";
 import calculateProgress from "../utils/progress";
 
-const colors = ["blue", "red", "green", "yellow", "purple", "orange"];
+const colors = [
+  "#5DB6E5", // светло-голубой
+  "#E03232", // ярко-красный
+  "#F0C850", // желтый
+  "#FF8555", // оранжевый
+  "#72CC72", // зеленый
+  "#8466E2", // фиолетовый
+  "#CB3694", // розовый
+];
 
 export default function HomeScreen() {
   const [checklists, setChecklists] =
@@ -27,7 +35,7 @@ export default function HomeScreen() {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [creatingChecklist, setCreatingChecklist] = useState(false);
   const [newChecklistTitle, setNewChecklistTitle] = useState("");
-  const [selectedColor, setSelectedColor] = useState("blue");
+  const [selectedColor, setSelectedColor] = useState(colors[0]);
   const containerRef = useRef<View>(null);
   const inputRef = useRef<TextInput>(null);
   const scrollRef = useRef<ScrollView>(null);
