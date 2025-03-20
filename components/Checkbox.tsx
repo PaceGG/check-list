@@ -4,9 +4,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 interface CheckboxProps {
   checked: boolean;
+  color: string;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ checked }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ checked, color }) => {
   return (
     <View
       style={{
@@ -18,7 +19,7 @@ const Checkbox: React.FC<CheckboxProps> = ({ checked }) => {
       <MaterialIcons
         name={checked ? "check-box" : "check-box-outline-blank"}
         size={25}
-        color={checked ? "#2e8fff" : "gray"}
+        color={color}
       />
     </View>
   );

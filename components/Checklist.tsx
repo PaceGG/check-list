@@ -51,7 +51,10 @@ export default function Checklist({
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {!hasChildren && (
             <Text style={{ marginRight: 10 }}>
-              <Checkbox checked={checklist.completed} />
+              <Checkbox
+                checked={checklist.completed}
+                color={checklist.progressColor}
+              />
             </Text>
           )}
           <View
