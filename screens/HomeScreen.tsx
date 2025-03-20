@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChecklistItem } from "../types";
 import { BackHandler, ScrollView, Text, View, StyleSheet } from "react-native";
 import Checklist from "../components/Checklist";
@@ -12,6 +12,8 @@ export default function HomeScreen() {
   const [checklists, setChecklists] =
     useState<Record<string, ChecklistItem>>(initialChecklists);
   const [currentId, setCurrentId] = useState<string | null>(null);
+  const containerRef = useRef<View>(null);
+  const [navbarHeight, setNavbarHeight] = useState(0);
 
   function openChecklist(id: string) {
     setCurrentId(id);
@@ -32,6 +34,15 @@ export default function HomeScreen() {
     return () => {
       BackHandler.removeEventListener("hardwareBackPress", backAction);
     };
+  }, [currentId]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.measure((x, y, width, height) => {
+        setNavbarHeight(height);
+        console.log(height);
+      });
+    }
   }, [currentId]);
 
   function goBack() {
@@ -72,7 +83,7 @@ export default function HomeScreen() {
       </View>
 
       {/* navbar */}
-      <View style={styles.navbar}>
+      <View ref={containerRef} style={styles.navbar}>
         {currentId && (
           <TouchableOpacity onPress={goBack} style={{ marginRight: 10 }}>
             <Ionicons name="arrow-back-circle-outline" size={30} />
@@ -115,7 +126,7 @@ export default function HomeScreen() {
       </View>
 
       {/* checklists */}
-      <ScrollView style={styles.content}>
+      <ScrollView style={{ marginTop: navbarHeight + 45 }}>
         <View style={{ padding: 10 }}>
           {(currentId
             ? checklists[currentId]?.children.map(
@@ -171,14 +182,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    padding: 10,
+    padding: 5,
+    paddingTop: 15,
   },
   navItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-  },
-  content: {
-    marginTop: 100, // Учитываем высоту панели и навбара
   },
 });
