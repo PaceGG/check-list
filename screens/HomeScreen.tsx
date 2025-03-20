@@ -148,13 +148,13 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={createChecklist} style={styles.createButton}>
+        <Ionicons name="add-circle-outline" size={70} color={"white"} />
+      </TouchableOpacity>
       {/* Панель */}
       <View style={styles.panel}>
         <TouchableOpacity onPress={goHome} style={styles.homeButton}>
           <Ionicons name="home-outline" size={30} color={"white"} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={createChecklist} style={styles.createButton}>
-          <Ionicons name="add-circle-outline" size={30} color={"white"} />
         </TouchableOpacity>
       </View>
 
@@ -283,9 +283,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   createButton: {
+    position: "absolute",
+    right: 15,
+    bottom: 15 + 75,
     backgroundColor: "#28a745",
     padding: 5,
     borderRadius: 5,
+    zIndex: 900,
   },
   navbar: {
     position: "absolute",
