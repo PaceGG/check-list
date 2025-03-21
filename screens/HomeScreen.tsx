@@ -20,6 +20,7 @@ import ProgressBar from "../components/ProgressBar";
 import calculateProgress from "../utils/progress";
 import ChecklistCreator from "../components/ChecklistCreator";
 import Header from "../components/Header";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Импортируем AsyncStorage
 
 export default function HomeScreen() {
   const [checklists, setChecklists] =
@@ -31,6 +32,33 @@ export default function HomeScreen() {
   const inputRef = useRef<TextInput>(null);
   const scrollRef = useRef<ScrollView>(null);
   const [navbarHeight, setNavbarHeight] = useState(0);
+
+  // Загружаем чеклисты при монтировании компонента
+  useEffect(() => {
+    const loadChecklists = async () => {
+      try {
+        const storedChecklists = await AsyncStorage.getItem("checklists");
+        if (storedChecklists) {
+          setChecklists(JSON.parse(storedChecklists)); // Загружаем данные из хранилища
+        }
+      } catch (error) {
+        console.error("Ошибка при загрузке чеклистов", error);
+      }
+    };
+    loadChecklists();
+  }, []);
+
+  // Сохраняем чеклисты в AsyncStorage
+  useEffect(() => {
+    const saveChecklists = async () => {
+      try {
+        await AsyncStorage.setItem("checklists", JSON.stringify(checklists)); // Сохраняем данные в хранилище
+      } catch (error) {
+        console.error("Ошибка при сохранении чеклистов", error);
+      }
+    };
+    saveChecklists();
+  }, [checklists]);
 
   useEffect(() => {
     if (containerRef.current) {
